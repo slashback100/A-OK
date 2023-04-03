@@ -128,8 +128,16 @@ void loop()
   } else {
     if (command != last_command) { // Only print unique commands to serial for better readability
       last_command = command;
-      Serial.print("Successful capture, command is: ");
+      Serial.print("Successful capture, full command is: ");
       Serial.println(command);
+      Serial.print("  Start byte: ");
+      Serial.println(command.substring(0, 7));
+      Serial.print("  Remote id bytes: ");
+      Serial.println(command.substring(7, 31));
+      Serial.print("  Address bytes: ");
+      Serial.println(command.substring(31, 47));
+      Serial.print("  Command byte: ");
+      Serial.println(command.substring(47, 54));
       
     } else {
       Serial.println("Command repeated");
