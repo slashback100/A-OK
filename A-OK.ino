@@ -96,15 +96,18 @@
 ******************************************************************************************************************************************************************
 */
 
-
+// do not change
+#define UP               11
+#define DOWN             67
+#define AFTER_UP_DOWN    36
+#define STOP             35
+#define PROGRAM          83
+#define CHANGE_DIRECTION 80 // Pressing STOP button for 5 seconds
 
 // Example commands:
-#define AOK_DOWN_EXAMPLE              "10100011010001100101000000010110000000010000000001000011111100001"
-#define AOK_UP_EXAMPLE                "10100011010001100101000000010110000000010000000000001011101110001"
-#define AOK_AFTER_UP_DOWN_EXAMPLE     "10100011010001100101000000010110000000010000000000100100110100011"
-#define AOK_STOP_EXAMPLE              "10100011010001100101000000010110000000010000000000100011110100001"
-#define AOK_PROGRAM_EXAMPLE           "10100011010001100101000000010110000000010000000001010011000000001"
-#define AOK_CHANGE_DIRECTION_EXAMPLE  "10100011010001100101000000010110000000010000000001010000111111011" // Pressing STOP button for 5 seconds
+#define START      163
+#define REMOTE_ID  4608022
+#define ADDRESS    256
 
 #define TRANSMIT_PIN             13      // We'll use digital 13 for transmitting
 #define REPEAT_COMMAND           8       // How many times to repeat the same command: original remotes repeat 8 (multi) or 10 (single) times by default
@@ -155,19 +158,23 @@ void loop() {
   //sendAOKCommand(AOK_AFTER_UP_DOWN_EXAMPLE); // This doesn't seem to be required at all, so you can most likely skip it
   //delay(3000);
   //sendAOKCommand(AOK_UP_EXAMPLE);
+  
+  sendAOKCommand(REMOTE_ID, ADDRESS, UP);
+  sendAOKCommand(REMOTE_ID, ADDRESS, AFTER_UP_DOWN);
+  
   //sendAOKCommand(AOK_AFTER_UP_DOWN_EXAMPLE); // This doesn't seem to be required at all, so you can most likely skip it
   //delay(3000);
 }
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-void sendAOKCommand(char* command) {
+void sendAOKCommand(int remote, int address, int command) {
+  //compute check sum
+  int checkum = (START + remote + address + command) % 256;
+  String commandStr = intToBytes(START, 1) + intToBytes(remote, 3) + intToBytes(address, 2) + intToBytes(command, 1) + intToBytes(checkum, 1) + "1";
+  char [65] command;
+  command = commandStr.toCharArray(command, 65)
   
-  if (command == NULL) {
-    errorLog("sendAOKCommand(): Command array pointer was NULL, cannot continue.");
-    return;
-  }
-
   // Prepare for transmitting and check for validity
   pinMode(TRANSMIT_PIN, OUTPUT); // Prepare the digital pin for output
   
@@ -250,3 +257,18 @@ void errorLog(String message) {
   Serial.println(message);
 }
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+String intToBytes(int intVal, int nbOfBytes){
+  String val = "" ;
+  while(intVal > 0){
+    if (intVal % 2 == 0){
+       val = "0" + val;
+    } else {
+       val = "1" + val;
+    }
+    intVal = intVal / 2;
+  }
+  while (val.length() < nbOfBytes*8){
+    val = "0" + val;
+  }
+  return val;
+}
