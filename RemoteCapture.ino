@@ -131,17 +131,28 @@ void loop()
       Serial.print("Successful capture, full command is: ");
       Serial.println(command);
       Serial.print("  Start byte: ");
-      Serial.println(command.substring(0, 7));
+      Serial.println(byteToInt(command.substring(0, 7)));
       Serial.print("  Remote id bytes: ");
-      Serial.println(command.substring(7, 31));
+      Serial.println(byteToInt(command.substring(7, 31)));
       Serial.print("  Address bytes: ");
-      Serial.println(command.substring(31, 47));
+      Serial.println(byteToInt(command.substring(31, 47)));
       Serial.print("  Command byte: ");
-      Serial.println(command.substring(47, 54));
+      Serial.println(byteToInt(command.substring(47, 54)));
       
     } else {
       Serial.println("Command repeated");
     }
   }
+}
+int byteToInt(String bytesStr){
+   //char s[24];
+   //bool.toCharArray(s, bool.length());
+   int value = 0;
+   for (int i=0; i < bytesStr.length(); i++) 
+   {
+     value *= 2; // double the result so far
+     if (bytesStr.substring(i, i+1).equals("1")) value++;  //add 1 if needed
+   }
+   return value;
 }
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
